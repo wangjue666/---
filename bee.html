@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	<style>
+		*{
+			padding:0;
+			margin:0;
+		}
+		li{
+			list-style:none;
+		}
+		#div1{
+			width:800px;
+			height:600px;
+			overflow:hidden;
+			background:black;
+			margin:20px auto;
+			position:relative;
+		}
+		#gameBtn{
+			color:white;
+			font-size:20px;
+			cursor:pointer;
+			border:1px solid darkblue;
+			width:100px;
+			height:30px;
+			line-height:30px;
+			text-align:center;
+			position:absolute;
+			top:285px;
+			left:350px;
+		}
+		#score{
+			color:white;
+			font-size:20px;
+		}
+		#bee{
+			position:relative;
+		}
+		.enemy1{
+			width:40px;
+			height:28px;
+			background:url(images/mf1.png) no-repeat;
+			float:left;
+		}
+		.enemy2{
+			width:40px;
+			height:28px;
+			background:url(images/mf2.png) no-repeat;
+			float:left;
+		}
+		.enemy3{
+			width:40px;
+			height:28px;
+			background:url(images/mf3.png) no-repeat;
+			float:left;
+		}
+		.air1{
+			width:46px;
+			height:50px;
+			background:url(images/fj.png) no-repeat;
+			position:absolute;
+		}
+		.bullet{
+			width:1px;
+			overflow:hidden;
+			height:10px;
+			background:white;
+			position:absolute;
+		}
+	</style>
+	<script>
+		window.onload=function(){
+			var oBtn=document.getElementById('gameBtn');
+			oBtn.onclick=function(){
+				this.style.display='none';
+				Game.init('div1');
+			}
+		}
+		var Game={
+			oEnemy:{                  //敌人的数据
+				e1:{style:'enemy1',blood:1,speed:3,scroe:1},
+				e2:{style:'enemy2',blood:2,speed:7,scroe:2},
+				e3:{style:'enemy3',blood:3,speed:10,scroe:3}
+			},
+			level:[				  //关卡
+				{
+					eMap:['e1','e1','e1','e1','e1','e1','e1','e1'
+					,'e1','e1',
+						  'e1','e1','e1','e1','e1','e1','e1','e1'
+					,'e1','e1',
+						  'e2','e2','e2','e2','e2','e2','e2','e2'
+					,'e2','e2',
+					      'e3','e3','e3','e3','e3','e3','e3','e3'
+					,'e3','e3',],
+					colNum:10,
+					iSpeedX:10,
+					iSpeedY:10,
+					times:2000
+				},
+				{
+					eMap:['e1','e1','e1','e1','e1','e1','e1','e1'
+					,'e1','e1',
+						  'e2','e2','e2','e2','e2','e2','e2','e2'
+					,'e2','e2',
+					      'e1','e1','e1','e1','e1','e1','e1','e1'
+					,'e3','e3',],
+					colNum:10,
+					iSpeedX:10,
+					iSpeedY:10,
+					times:2000
+				}
+			],
+			init:function(id){        //初始化
+				this.oParent=document.getElementById(id);
+				this.createScore();
+				this.createEnemy(0);
+			},
+			createScore:function(){    //创建积分
+				var oS=document.createElement('div');
+				oS.id='score';
+				oS.innerHTML='积分：<span>0</span>';
+				this.oParent.appendChild(oS);
+				this.oSNum=oS.getElementsByTagName('span')[0];	
+			},
+			createEnemy:function(iNow){     //创建敌人
+				var level=this.level[iNow];
+				var oUl=document.createElement('ul');
+				oUl.id='bee';
+				oUl.style.width=level.colNum*40+'px';
+				this.oParent.appendChild(oUl);
+				oUl.style.left=(this.oParent.offsetWidth-oUl.offsetWidth)/2+'px';
+				this.oUl=oUl;
+				for(var i=0;i<level.eMap.length;i++){
+					var oLi=document.createElement('li');
+					oLi.className=this.oEnemy[level.eMap[i]].style;
+					oLi.blood=this.oEnemy[level.eMap[i]].blood;
+					oLi.speed=this.oEnemy[level.eMap[i]].speed;
+					oLi.score=this.oEnemy[level.eMap[i]].score;
+					oUl.appendChild(oLi);
+				};
+				this.runEnemy(level);
+			},
+			runEnemy:function(level){        //移动敌人
+				var This=this;
+				var L=0;
+				var R=this.oParent.offsetWidth-this.oUl.offsetWidth;
+				setInterval(function(){
+					if(This.oUl.offsetLeft>R){
+						level.iSpeedX*=-1;
+						This.oUl.style.top=This.oUl.offsetTop+level.iSpeedY+'px';
+					}else if(This.oUl.offsetLeft<L){
+						level.iSpeedX*=-1;
+						This.oUl.style.top=This.oUl.offsetTop+level.iSpeedY+'px';
+					}
+					This.oUl.style.left=This.oUl.offsetLeft+level.iSpeedX+'px';
+				},200)
+			}
+		}
+	</script>
+	</head>
+	<body>
+		<div id="div1">
+			<div id="gameBtn">BEGIN</div>
+		</div>
+	</body>
+</html>

@@ -90,11 +90,7 @@
 					eMap:['e1','e1','e1','e1','e1','e1','e1','e1'
 					,'e1','e1',
 						  'e1','e1','e1','e1','e1','e1','e1','e1'
-					,'e1','e1',
-						  'e2','e2','e2','e2','e2','e2','e2','e2'
-					,'e2','e2',
-					      'e3','e3','e3','e3','e3','e3','e3','e3'
-					,'e3','e3',],
+					,'e1','e1'],
 					colNum:10,
 					iSpeedX:10,
 					iSpeedY:10,
@@ -103,8 +99,6 @@
 				{
 					eMap:['e1','e1','e1','e1','e1','e1','e1','e1'
 					,'e1','e1',
-						  'e2','e2','e2','e2','e2','e2','e2','e2'
-					,'e2','e2',
 					      'e1','e1','e1','e1','e1','e1','e1','e1'
 					,'e3','e3',],
 					colNum:10,
@@ -131,6 +125,7 @@
 				this.oSNum=oS.getElementsByTagName('span')[0];	
 			},
 			createEnemy:function(iNow){     //创建敌人
+				document.title='第'+(iNow+1)+'关'
 				var level=this.level[iNow];
 				var arr=[];
 				var oUl=document.createElement('ul');
@@ -145,7 +140,7 @@
 					oLi.blood=this.oEnemy[level.eMap[i]].blood;
 					oLi.speed=this.oEnemy[level.eMap[i]].speed;
 					oLi.score=this.oEnemy[level.eMap[i]].score;
-					console.log(oLi.score)
+					
 					oUl.appendChild(oLi);
 				};
 				this.aLi=oUl.getElementsByTagName('li'); //获取所有敌人
@@ -164,7 +159,7 @@
 				var This=this;
 				var L=0;
 				var R=this.oParent.offsetWidth-this.oUl.offsetWidth;
-				setInterval(function(){
+				This.oUl.timer=setInterval(function(){
 					if(This.oUl.offsetLeft>R){
 						level.iSpeedX*=-1;
 						This.oUl.style.top=This.oUl.offsetTop+level.iSpeedY+'px';
@@ -173,7 +168,28 @@
 						This.oUl.style.top=This.oUl.offsetTop+level.iSpeedY+'px';
 					}
 					This.oUl.style.left=This.oUl.offsetLeft+level.iSpeedX+'px';
-				},200)
+				},200);
+				setInterval(function(){
+					This.enemyHit();
+				},level.times)
+			},
+			enemyHit:function(){         //小蜜蜂撞击
+				var This=this;
+				var nowLi=this.aLi[Math.floor(Math.random()*this.aLi.length)]
+				nowLi.timer=setInterval(function(){
+					var a=(This.oA.offsetLeft+(This.oA.offsetWidth/2))-(nowLi.offsetLeft+nowLi.parentNode.offsetLeft+nowLi.offsetWidth/2);
+					var b=(This.oA.offsetTop+(This.oA.offsetHeight/2))-(nowLi.offsetTop+nowLi.parentNode.offsetTop+nowLi.offsetHeight/2);
+					var c=Math.sqrt(a*a+b*b);
+					var iSX=nowLi.speed*a/c;
+					var iSY=nowLi.speed*b/c;
+					nowLi.style.left=nowLi.offsetLeft+iSX+'px';
+					nowLi.style.top=nowLi.offsetTop+iSY+'px';
+					
+					if(This.bump(This.oA,nowLi)){
+						alert('游戏结束');
+						window.location.reload();
+					}
+				},30);
 			},
 			createAir:function(){        //创建飞机
 				this.oA=document.createElement('div');
@@ -241,7 +257,8 @@
 					for(var i=0;i<This.aLi.length;i++){
 						if(This.bump(oB,This.aLi[i])){
 							if(This.aLi[i].blood==1){
-								console.log(This.aLi[i].score)
+								clearInterval(This.aLi[i].timer);
+								
 								This.oSNum.innerHTML=parseInt(This.oSNum.innerHTML)+This.aLi[i].score;
 								This.oUl.removeChild(This.aLi[i]);
 							}else{
@@ -252,6 +269,11 @@
 							This.oParent.removeChild(oB);	
 					};
 				}
+					if(!This.aLi.length){
+						clearInterval(This.oUl.timer);
+						This.oParent.removeChild(This.oUl);
+						This.createEnemy(1);
+					}
 				},30);
 				
 			},
